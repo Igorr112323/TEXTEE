@@ -70,14 +70,16 @@
                             <TextBlock Text="{Binding SessionFrameText}" Margin="0,6,0,0"
                                        TextWrapping="Wrap" FontSize="12.5"
                                        Foreground="{DynamicResource Brush.TextDim}" />
-                            <StackPanel Orientation="Horizontal" Margin="0,12,0,0">
+                            <WrapPanel Margin="0,12,0,0">
                                 <Button Content="Код сессии" Command="{Binding ShowSessionCommand}"
-                                        Style="{StaticResource Btn.Soft}" Height="40" Padding="12,0" />
+                                        Style="{StaticResource Btn.Soft}" Height="40" Padding="12,0" Margin="0,0,10,8" />
                                 <Button Content="Считать итог" Command="{Binding ScanResultCommand}"
-                                        Style="{StaticResource Btn.Green}" Margin="10,0,0,0" Padding="14,0" />
+                                        Style="{StaticResource Btn.Green}" Padding="14,0" Margin="0,0,10,8" />
                                 <Button Content="Импорт файла" Command="{Binding ImportResultCommand}"
-                                        Style="{StaticResource Btn.Ghost}" Margin="10,0,0,0" Padding="14,0" />
-                            </StackPanel>
+                                        Style="{StaticResource Btn.Ghost}" Padding="14,0" Margin="0,0,10,8" />
+                                <Button Content="Проверка" Command="{Binding SpotCheckCommand}"
+                                        Style="{StaticResource Btn.Soft}" Padding="14,0" Margin="0,0,10,8" />
+                            </WrapPanel>
                         </StackPanel>
                     </Grid>
                 </Border>

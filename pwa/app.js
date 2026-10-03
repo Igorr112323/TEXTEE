@@ -350,7 +350,8 @@ $("modeSwitch").onclick = () => {
   }
 };
 
-if (!window.isSecureContext) $("httpsWarn").hidden = false;
+var standalone = window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone;
+if (!standalone) $("httpsWarn").hidden = false;
 if ("serviceWorker" in navigator && window.isSecureContext) {
   navigator.serviceWorker.register("sw.js").catch(() => {});
 }

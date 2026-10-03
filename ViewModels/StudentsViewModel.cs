@@ -40,14 +40,16 @@ public sealed class StudentsViewModel : ObservableObject, ITabViewModel
     private readonly AuthService _auth;
     private readonly WordService _word;
     private readonly MainViewModel _main;
+    private readonly BackupService _backups;
 
-    public StudentsViewModel(DatabaseService database, ToastService toasts, AuthService auth, WordService word, MainViewModel main)
+    public StudentsViewModel(DatabaseService database, ToastService toasts, AuthService auth, WordService word, MainViewModel main, BackupService backups)
     {
         _database = database;
         _toasts = toasts;
         _auth = auth;
         _word = word;
         _main = main;
+        _backups = backups;
 
         NewGroupCommand = new RelayCommand(_ => CreateGroupDialog());
         AddStudentCommand = new RelayCommand(_ => AddStudentDialog(), _ => SelectedGroup is not null);
@@ -164,6 +166,15 @@ public sealed class StudentsViewModel : ObservableObject, ITabViewModel
             ConfirmText = "Удалить",
             OnConfirm = _ =>
             {
+                try
+                {
+                    _backups.Snapshot();
+                }
+                catch (Exception exception)
+                {
+                    _toasts.Error("Копия не создана", "Группа не удалена: " + exception.Message);
+                    return false;
+                }
                 _database.DeleteGroup(group.Id);
                 SelectedGroup = null;
                 _toasts.Success("Группа удалена", group.Name);

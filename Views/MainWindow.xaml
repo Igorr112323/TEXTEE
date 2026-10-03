@@ -4,7 +4,7 @@
         xmlns:vm="clr-namespace:Visits11.ViewModels"
         xmlns:views="clr-namespace:Visits11.Views"
         xmlns:services="clr-namespace:Visits11.Services"
-        Title="Журнал КубГАУ"
+        Title="Журнал КубГАУ — Система автоматизированной переклички"
         Width="1280" Height="800"
         MinWidth="1160" MinHeight="720"
         WindowStartupLocation="CenterScreen"
@@ -74,6 +74,9 @@
         </DataTemplate>
         <DataTemplate DataType="{x:Type vm:JournalViewModel}">
             <views:JournalView />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:QrViewModel}">
+            <views:QrView />
         </DataTemplate>
 
         <!-- ============================================== МОДАЛЬНОЕ ОКНО == -->
@@ -300,7 +303,13 @@
                                      GroupName="Tabs"
                                      Tag="{StaticResource Icon.Book}"
                                      Content="Журнал"
-                                     IsChecked="{Binding TabJournal, Mode=TwoWay}" />
+                                     IsChecked="{Binding TabJournal, Mode=TwoWay}"
+                                     Margin="0,0,6,0" />
+                        <RadioButton Style="{StaticResource Widget.TabToggle}"
+                                     GroupName="Tabs"
+                                     Tag="{StaticResource Icon.Qr}"
+                                     Content="QR"
+                                     IsChecked="{Binding TabQr, Mode=TwoWay}" />
                     </StackPanel>
 
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">

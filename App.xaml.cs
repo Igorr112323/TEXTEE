@@ -8,27 +8,51 @@ namespace Visits11;
 
 public partial class App : Application
 {
+    private MainViewModel? _viewModel;
+
     public static DatabaseService Db { get; private set; } = null!;
     public static ThemeService Theme { get; private set; } = null!;
     public static ToastService Toasts { get; private set; } = null!;
+    public static AppSettings Settings { get; private set; } = null!;
 
     protected override void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
+        ShutdownMode = ShutdownMode.OnExplicitShutdown;
         var appDir = GetAppDirectory();
-        Db = new DatabaseService(Path.Combine(appDir, "attendance.db"));
+        var dbPath = Path.Combine(appDir, "attendance.db");
+        Db = new DatabaseService(dbPath);
         Db.Initialize();
-        Theme = new ThemeService(Path.Combine(appDir, "settings.json"));
+        Settings = new AppSettings(Path.Combine(appDir, "settings.json"));
+        Settings.Load();
+        Theme = new ThemeService(Settings);
         Theme.LoadAndApply();
         Toasts = new ToastService();
+        var backups = new BackupService(appDir, dbPath);
+        try { backups.EnsureDaily(); } catch { }
         DispatcherUnhandledException += (_, args) =>
         {
             MessageBox.Show(args.Exception.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
             args.Handled = true;
         };
-        var viewModel = new MainViewModel(Db, Toasts, Theme, new AuthService(), new WordService());
+        if (!PinWindow.Check(Settings))
+        {
+            Shutdown();
+            return;
+        }
+        var viewModel = new MainViewModel(Db, Toasts, Theme, new AuthService(), new WordService(), Settings, backups);
+        _viewModel = viewModel;
         var window = new MainWindow(viewModel);
+        MainWindow = window;
+        ShutdownMode = ShutdownMode.OnMainWindowClose;
         window.Show();
+        viewModel.Qr.Start();
+    }
+
+    protected override void OnExit(ExitEventArgs e)
+    {
+        _viewModel?.Qr.Stop();
+        base.OnExit(e);
     }
 
     private static string GetAppDirectory()

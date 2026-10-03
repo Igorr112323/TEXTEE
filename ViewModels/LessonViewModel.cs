@@ -68,6 +68,7 @@ public sealed class LessonViewModel : ObservableObject, ITabViewModel
         ShowSessionCommand = new RelayCommand(_ => ShowSessionWindow(), _ => RollcallState == StateActive);
         ScanResultCommand = new RelayCommand(_ => OpenScanner(), _ => RollcallState == StateActive);
         ImportResultCommand = new RelayCommand(_ => ImportFile(), _ => RollcallState == StateActive);
+        SpotCheckCommand = new RelayCommand(_ => ShowSpotCheck(), _ => RollcallState == StateActive);
         _database.DataChanged += OnDataChanged;
         ReloadGroups();
     }
@@ -80,6 +81,7 @@ public sealed class LessonViewModel : ObservableObject, ITabViewModel
     public RelayCommand ShowSessionCommand { get; }
     public RelayCommand ScanResultCommand { get; }
     public RelayCommand ImportResultCommand { get; }
+    public RelayCommand SpotCheckCommand { get; }
 
     private Group? _selectedGroup;
     public Group? SelectedGroup
@@ -177,6 +179,17 @@ public sealed class LessonViewModel : ObservableObject, ITabViewModel
         if (RollcallState == StateFinished) return;
         if (RollcallState == StateActive)
         {
+            var choice = ConfirmWindow.Show(
+                "Завершить перекличку?",
+                $"Присутствуют {PresentCount} из {Rows.Count}. Занятие запишется в журнал. Перед записью можно проверить случайных студентов.",
+                "Записать",
+                "Проверить случайных");
+            if (choice == ConfirmChoice.Extra)
+            {
+                ShowSpotCheck();
+                return;
+            }
+            if (choice != ConfirmChoice.Ok) return;
             Finish();
             return;
         }
@@ -393,6 +406,25 @@ public sealed class LessonViewModel : ObservableObject, ITabViewModel
         _toasts.Success("Отмечен", row.FullName);
         RecalcStats();
         if (Rows.All(item => item.IsPresent)) Finish();
+    }
+
+    private void ShowSpotCheck()
+    {
+        var present = Rows.Where(row => row.IsPresent).ToList();
+        if (present.Count == 0)
+        {
+            _toasts.Error("Некого проверять", "Сначала отметьте студентов камерой.");
+            return;
+        }
+        var count = Math.Min(3, present.Count);
+        var picked = present.OrderBy(_ => Random.Shared.Next()).Take(count).ToList();
+        SpotCheckWindow.Show(picked, row =>
+        {
+            row.IsPresent = false;
+            row.MarkedAt = null;
+            RecalcStats();
+            _toasts.Info("Снят с занятия", row.FullName);
+        });
     }
 
     private void Finish()

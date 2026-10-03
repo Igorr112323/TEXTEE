@@ -1,3 +1,4 @@
+using System.Globalization;
 using Microsoft.Data.Sqlite;
 using Visits11.Models;
 
@@ -51,6 +52,7 @@ public sealed class DatabaseService
               Password TEXT NOT NULL,
               PhoneId TEXT NULL,
               DeviceId TEXT NULL,
+              CreatedAt TEXT NULL,
               FOREIGN KEY (GroupId) REFERENCES Groups(Id) ON DELETE CASCADE
             );
 
@@ -89,6 +91,16 @@ public sealed class DatabaseService
         catch
         {
             // колонка уже есть
+        }
+
+        try
+        {
+            using var created = connection.CreateCommand();
+            created.CommandText = "ALTER TABLE Students ADD COLUMN CreatedAt TEXT NULL";
+            created.ExecuteNonQuery();
+        }
+        catch
+        {
         }
     }
 
@@ -294,8 +306,8 @@ public sealed class DatabaseService
         using var connection = Open();
         using var command = connection.CreateCommand();
         command.CommandText = """
-            INSERT INTO Students (GroupId, FullName, Login, Password, PhoneId)
-            VALUES (@groupId, @fullName, @login, @password, @phoneId);
+            INSERT INTO Students (GroupId, FullName, Login, Password, PhoneId, CreatedAt)
+            VALUES (@groupId, @fullName, @login, @password, @phoneId, @createdAt);
             SELECT last_insert_rowid();
             """;
         command.Parameters.AddWithValue("@groupId", student.GroupId);
@@ -303,6 +315,7 @@ public sealed class DatabaseService
         command.Parameters.AddWithValue("@login", student.Login);
         command.Parameters.AddWithValue("@password", student.Password);
         command.Parameters.AddWithValue("@phoneId", (object?)student.PhoneId ?? DBNull.Value);
+        command.Parameters.AddWithValue("@createdAt", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
         student.Id = Convert.ToInt32(command.ExecuteScalar());
         RaiseDataChanged();
     }
@@ -313,14 +326,16 @@ public sealed class DatabaseService
         using var transaction = connection.BeginTransaction();
         using var command = connection.CreateCommand();
         command.CommandText = """
-            INSERT INTO Students (GroupId, FullName, Login, Password, PhoneId)
-            VALUES (@groupId, @fullName, @login, @password, @phoneId);
+            INSERT INTO Students (GroupId, FullName, Login, Password, PhoneId, CreatedAt)
+            VALUES (@groupId, @fullName, @login, @password, @phoneId, @createdAt);
             """;
         var pGroupId = command.Parameters.Add("@groupId", SqliteType.Integer);
         var pFullName = command.Parameters.Add("@fullName", SqliteType.Text);
         var pLogin = command.Parameters.Add("@login", SqliteType.Text);
         var pPassword = command.Parameters.Add("@password", SqliteType.Text);
         var pPhoneId = command.Parameters.Add("@phoneId", SqliteType.Text);
+        var pCreatedAt = command.Parameters.Add("@createdAt", SqliteType.Text);
+        var createdAt = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
 
         foreach (var student in students)
         {
@@ -329,6 +344,7 @@ public sealed class DatabaseService
             pLogin.Value = student.Login;
             pPassword.Value = student.Password;
             pPhoneId.Value = (object?)student.PhoneId ?? DBNull.Value;
+            pCreatedAt.Value = createdAt;
             command.ExecuteNonQuery();
         }
         transaction.Commit();
@@ -443,5 +459,108 @@ public sealed class DatabaseService
             command.ExecuteNonQuery();
         }
         transaction.Commit();
+    }
+
+    public SemesterReport BuildSemester(int groupId, DateTime from)
+    {
+        var fromText = from.ToString("yyyy-MM-dd");
+        using var connection = Open();
+        var lessons = new List<(int Id, string Started)>();
+        using (var command = connection.CreateCommand())
+        {
+            command.CommandText = """
+                SELECT Id, StartedAt FROM Lessons
+                WHERE GroupId = @id AND StartedAt >= @from
+                ORDER BY StartedAt, Id
+                """;
+            command.Parameters.AddWithValue("@id", groupId);
+            command.Parameters.AddWithValue("@from", fromText);
+            using var reader = command.ExecuteReader();
+            while (reader.Read()) lessons.Add((reader.GetInt32(0), reader.GetString(1)));
+        }
+
+        var students = new List<(int Id, string Name, string? Created)>();
+        using (var command = connection.CreateCommand())
+        {
+            command.CommandText = "SELECT Id, FullName, CreatedAt FROM Students WHERE GroupId = @id ORDER BY Id";
+            command.Parameters.AddWithValue("@id", groupId);
+            using var reader = command.ExecuteReader();
+            while (reader.Read())
+            {
+                students.Add((reader.GetInt32(0), reader.GetString(1), reader.IsDBNull(2) ? null : reader.GetString(2)));
+            }
+        }
+
+        var present = new HashSet<(int StudentId, int LessonId)>();
+        using (var command = connection.CreateCommand())
+        {
+            command.CommandText = """
+                SELECT a.StudentId, a.LessonId
+                FROM Attendance a
+                JOIN Lessons l ON l.Id = a.LessonId
+                WHERE l.GroupId = @id AND l.StartedAt >= @from AND a.Status = 'present'
+                """;
+            command.Parameters.AddWithValue("@id", groupId);
+            command.Parameters.AddWithValue("@from", fromText);
+            using var reader = command.ExecuteReader();
+            while (reader.Read()) present.Add((reader.GetInt32(0), reader.GetInt32(1)));
+        }
+
+        var headers = new List<string>();
+        var seen = new Dictionary<string, int>();
+        foreach (var lesson in lessons)
+        {
+            var label = DateTime.TryParseExact(lesson.Started, "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.None, out var date)
+                ? date.ToString("dd.MM")
+                : lesson.Started;
+            if (!seen.TryAdd(label, 1))
+            {
+                var count = seen[label] + 1;
+                seen[label] = count;
+                label = $"{label} {count}";
+            }
+            headers.Add(label);
+        }
+
+        var report = new SemesterReport { Headers = headers };
+        foreach (var student in students)
+        {
+            var marks = new List<string>();
+            var counted = 0;
+            var was = 0;
+            foreach (var lesson in lessons)
+            {
+                if (!Counts(student.Created, lesson.Started))
+                {
+                    marks.Add("—");
+                    continue;
+                }
+                counted++;
+                if (present.Contains((student.Id, lesson.Id)))
+                {
+                    was++;
+                    marks.Add("+");
+                }
+                else marks.Add("н");
+            }
+            report.Students.Add(new SemesterStudent
+            {
+                Name = student.Name,
+                Marks = marks,
+                TotalText = $"{was}/{counted}",
+                PercentText = counted == 0 ? "—" : $"{(int)Math.Round(was * 100.0 / counted)}%",
+            });
+        }
+        return report;
+    }
+
+    private static bool Counts(string? createdAt, string startedRaw)
+    {
+        if (string.IsNullOrEmpty(createdAt)) return true;
+        if (!DateTime.TryParseExact(createdAt, "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.None, out var created))
+            return true;
+        if (!DateTime.TryParseExact(startedRaw, "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.None, out var lessonStart))
+            return true;
+        return created <= lessonStart;
     }
 }

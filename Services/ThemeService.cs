@@ -1,50 +1,27 @@
-using System.IO;
-using System.Text.Json;
 using System.Windows;
 
 namespace Visits11.Services;
 
-/// <summary>
-/// Переключение светлой/тёмной темы. Выбор сохраняется в settings.json рядом с exe.
-/// </summary>
 public sealed class ThemeService
 {
     public const string Light = "light";
     public const string Dark = "dark";
 
-    private sealed class SettingsDto
-    {
-        public string Theme { get; set; } = Light;
-    }
-
-    private readonly string _settingsPath;
+    private readonly AppSettings _settings;
 
     public string Current { get; private set; } = Light;
     public bool IsDark => Current == Dark;
 
-    /// <summary>Вызывается после смены темы.</summary>
     public event Action? ThemeChanged;
 
-    public ThemeService(string settingsPath)
+    public ThemeService(AppSettings settings)
     {
-        _settingsPath = settingsPath;
+        _settings = settings;
     }
 
     public void LoadAndApply()
     {
-        var theme = Light;
-        try
-        {
-            if (File.Exists(_settingsPath))
-            {
-                var settings = JsonSerializer.Deserialize<SettingsDto>(File.ReadAllText(_settingsPath));
-                if (settings is { Theme: Light or Dark }) theme = settings.Theme;
-            }
-        }
-        catch
-        {
-            // повреждённый settings.json — используем светлую тему
-        }
+        var theme = _settings.Theme is Light or Dark ? _settings.Theme : Light;
         Apply(theme, save: false);
     }
 
@@ -53,18 +30,16 @@ public sealed class ThemeService
     private void Apply(string theme, bool save)
     {
         Current = theme;
-
         var dictionaries = Application.Current.Resources.MergedDictionaries;
         var index = -1;
         for (var i = 0; i < dictionaries.Count; i++)
         {
-            if (dictionaries[i].Source is { } source && source.OriginalString.Contains("Theme."))
+            if (dictionaries[i].Source is { } source && source.OriginalString.Contains("Theme.", StringComparison.Ordinal))
             {
                 index = i;
                 break;
             }
         }
-
         if (index >= 0)
         {
             var file = IsDark ? "Theme.Dark" : "Theme.Light";
@@ -73,20 +48,11 @@ public sealed class ThemeService
                 Source = new Uri($"pack://application:,,,/Styles/{file}.xaml"),
             };
         }
-
-        if (save) Save();
+        if (save)
+        {
+            _settings.Theme = theme;
+            _settings.Save();
+        }
         ThemeChanged?.Invoke();
-    }
-
-    private void Save()
-    {
-        try
-        {
-            File.WriteAllText(_settingsPath, JsonSerializer.Serialize(new SettingsDto { Theme = Current }));
-        }
-        catch
-        {
-            // нет прав на запись — тема просто не сохранится
-        }
     }
 }

@@ -1,4 +1,4 @@
-const CACHE = "kubgau-pwa-1";
+const CACHE = "kubgau-pwa-2";
 const FILES = [
   "./",
   "./index.html",

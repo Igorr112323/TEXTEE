@@ -123,18 +123,27 @@
 
                     <!-- заголовок + экспорт -->
                     <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
                         <TextBlock Text="{Binding HeaderTitle}" Style="{StaticResource Txt.H1}"
-                                   VerticalAlignment="Center" />
-                        <Button Style="{StaticResource Btn.Violet}"
-                                Command="{Binding ExportCommand}"
-                                HorizontalAlignment="Right">
-                            <StackPanel Orientation="Horizontal">
-                                <Path Data="{StaticResource Icon.Export}" Width="15" Height="15" Stretch="Uniform"
-                                      Stroke="#FFFFFF" StrokeThickness="1.8"
-                                      StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round" />
-                                <TextBlock Text="Экспорт" Margin="8,0,0,0" />
-                            </StackPanel>
-                        </Button>
+                                   VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
+                            <Button Style="{StaticResource Btn.Soft}"
+                                    Command="{Binding SummaryCommand}"
+                                    Content="Сводка"
+                                    Padding="14,0" Margin="0,0,10,0" />
+                            <Button Style="{StaticResource Btn.Violet}"
+                                    Command="{Binding ExportCommand}">
+                                <StackPanel Orientation="Horizontal">
+                                    <Path Data="{StaticResource Icon.Export}" Width="15" Height="15" Stretch="Uniform"
+                                          Stroke="#FFFFFF" StrokeThickness="1.8"
+                                          StrokeLineJoin="Round" StrokeStartLineCap="Round" StrokeEndLineCap="Round" />
+                                    <TextBlock Text="Экспорт" Margin="8,0,0,0" />
+                                </StackPanel>
+                            </Button>
+                        </StackPanel>
                     </Grid>
 
                     <!-- статкарточки -->

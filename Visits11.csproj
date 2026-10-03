@@ -26,4 +26,8 @@
     <Resource Include="Assets\Fonts\*.ttf" />
   </ItemGroup>
 
+  <ItemGroup>
+    <EmbeddedResource Include="pwa\**\*" />
+  </ItemGroup>
+
 </Project>

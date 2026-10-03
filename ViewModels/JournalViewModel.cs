@@ -1,8 +1,10 @@
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Text;
 using Microsoft.Win32;
 using Visits11.Models;
 using Visits11.Services;
+using Visits11.Views;
 
 namespace Visits11.ViewModels;
 
@@ -40,6 +42,7 @@ public sealed class JournalViewModel : ObservableObject, ITabViewModel
         _word = word;
 
         ExportCommand = new RelayCommand(_ => ExportSelectedLesson(), _ => SelectedLesson is not null);
+        SummaryCommand = new RelayCommand(_ => ShowSummary(), _ => SelectedGroup is not null);
         SelectLessonCommand = new RelayCommand(param =>
         {
             if (param is LessonItemViewModel lesson) SelectedLesson = lesson;
@@ -86,6 +89,7 @@ public sealed class JournalViewModel : ObservableObject, ITabViewModel
     public bool HasLesson => SelectedLesson is not null;
 
     public RelayCommand ExportCommand { get; }
+    public RelayCommand SummaryCommand { get; }
     public RelayCommand SelectLessonCommand { get; }
 
     // ---------------------------------------------------------------- детали
@@ -185,7 +189,7 @@ public sealed class JournalViewModel : ObservableObject, ITabViewModel
 
         if (SelectedGroup is not null)
         {
-            foreach (var lesson in _database.GetLessons(SelectedGroup.Id))
+            foreach (var lesson in _database.GetLessons(SelectedGroup.Id).Take(300))
             {
                 Lessons.Add(new LessonItemViewModel
                 {
@@ -231,6 +235,60 @@ public sealed class JournalViewModel : ObservableObject, ITabViewModel
         TotalText = details.Count.ToString();
         PresentText = details.Count(d => d.Present).ToString();
         AbsentText = details.Count(d => !d.Present).ToString();
+    }
+
+    private void ShowSummary()
+    {
+        if (SelectedGroup is null)
+        {
+            _toasts.Error("Выберите группу", "Сначала выберите группу.");
+            return;
+        }
+        var from = SemesterStart(DateTime.Now);
+        var report = _database.BuildSemester(SelectedGroup.Id, from);
+        report.Title = $"{SelectedGroup.Name} · с {from:dd.MM.yyyy}";
+        SummaryWindow.Show(report, () => SaveSummary(report));
+    }
+
+    private void SaveSummary(SemesterReport report)
+    {
+        var dialog = new SaveFileDialog
+        {
+            Title = "Сводка семестра",
+            Filter = "CSV (*.csv)|*.csv",
+            FileName = $"Сводка {SelectedGroup?.Name} {DateTime.Now:yyyy-MM-dd}.csv",
+        };
+        if (dialog.ShowDialog() != true) return;
+        try
+        {
+            var builder = new StringBuilder();
+            builder.Append(Csv("ФИО"));
+            foreach (var header in report.Headers) builder.Append(';').Append(Csv(header));
+            builder.Append(';').Append(Csv("Итого")).Append(';').Append(Csv("%"));
+            builder.AppendLine();
+            foreach (var student in report.Students)
+            {
+                builder.Append(Csv(student.Name));
+                foreach (var mark in student.Marks) builder.Append(';').Append(Csv(mark));
+                builder.Append(';').Append(Csv(student.TotalText)).Append(';').Append(Csv(student.PercentText));
+                builder.AppendLine();
+            }
+            File.WriteAllText(dialog.FileName, builder.ToString(), new UTF8Encoding(true));
+            _toasts.Success("Файл сохранён", dialog.FileName);
+        }
+        catch (Exception exception)
+        {
+            _toasts.Error("Не удалось сохранить файл", exception.Message);
+        }
+    }
+
+    private static string Csv(string value) => "\"" + value.Replace("\"", "\"\"") + "\"";
+
+    private static DateTime SemesterStart(DateTime now)
+    {
+        if (now.Month >= 9) return new DateTime(now.Year, 9, 1);
+        if (now.Month >= 2) return new DateTime(now.Year, 2, 1);
+        return new DateTime(now.Year - 1, 9, 1);
     }
 
     private static string LessonDate(string startedAt)

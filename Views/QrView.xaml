@@ -1,0 +1,151 @@
+<UserControl x:Class="Visits11.Views.QrView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Focusable="False">
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+        <StackPanel>
+            <TextBlock Text="Система автоматизированной переклички" Style="{StaticResource Txt.H1}" />
+            <TextBlock Margin="0,8,0,18" TextWrapping="Wrap" Style="{StaticResource Txt.Dim}"
+                       Text="Отметка присутствия — камерой телефона преподавателя: он сканирует QR студента. Эта вкладка занятие не отмечает. Она поднимает страницу в сети аудитории: студент сканирует код Wi-Fi, затем код сайта, ставит приложение на iPhone и показывает свой QR. Интернет не нужен. Логины — на вкладке «Студенты», экспорт в Word." />
+
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1.35*" />
+                    <ColumnDefinition Width="16" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <Border Grid.Column="0" CornerRadius="20"
+                        Background="{DynamicResource Brush.Panel}"
+                        BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1"
+                        Effect="{StaticResource Effect.ShadowMd}" Padding="22">
+                    <StackPanel>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="16" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="1. WI-FI" Style="{StaticResource Txt.Label}" />
+                                <Border Width="210" Height="210" Margin="0,12,0,0" HorizontalAlignment="Left"
+                                        Background="White" CornerRadius="12" Padding="8">
+                                    <Grid>
+                                        <Image Source="{Binding WifiQr}" Stretch="Uniform" />
+                                        <TextBlock Text="Укажите имя сети" TextWrapping="Wrap" TextAlignment="Center"
+                                                   Foreground="#6B7690" FontSize="13" VerticalAlignment="Center"
+                                                   Visibility="{Binding HasWifiQr, Converter={StaticResource Conv.BoolToVis}, ConverterParameter=invert}" />
+                                    </Grid>
+                                </Border>
+                                <TextBlock Margin="0,10,0,0" Text="{Binding SsidText}" TextWrapping="Wrap" Style="{StaticResource Txt.Dim}" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="2. САЙТ И PWA" Style="{StaticResource Txt.Label}" />
+                                <Border Width="210" Height="210" Margin="0,12,0,0" HorizontalAlignment="Left"
+                                        Background="White" CornerRadius="12" Padding="8">
+                                    <Image Source="{Binding UrlQr}" Stretch="Uniform" />
+                                </Border>
+                                <TextBlock Margin="0,10,0,0" Text="{Binding UrlText}" TextWrapping="Wrap" Style="{StaticResource Txt.Dim}" />
+                            </StackPanel>
+                        </Grid>
+                        <TextBlock Margin="0,16,0,0" Text="{Binding StatusText}" TextWrapping="Wrap" Style="{StaticResource Txt.Body}" />
+                        <TextBlock Margin="0,6,0,0" TextWrapping="Wrap" Style="{StaticResource Txt.Dim}"
+                                   Text="Телефон не умеет одним кодом и войти в Wi-Fi, и открыть сайт. Сначала код сети, затем код сайта. Если страница не открывается — «Разрешить телефонам»: Windows спросит права, это порт и правило брандмауэра." />
+                        <WrapPanel Margin="0,16,0,0">
+                            <Button Content="На проектор" Command="{Binding ProjectorCommand}" Style="{StaticResource Btn.Primary}" Padding="16,0" Margin="0,0,10,8" />
+                            <Button Content="Разрешить телефонам" Command="{Binding AllowCommand}" Style="{StaticResource Btn.Soft}" Padding="16,0" Margin="0,0,10,8" />
+                            <Button Content="Открыть сайт" Command="{Binding OpenSiteCommand}" Style="{StaticResource Btn.Ghost}" Padding="16,0" Margin="0,0,10,8" />
+                        </WrapPanel>
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Column="2" CornerRadius="20"
+                        Background="{DynamicResource Brush.Panel}"
+                        BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1"
+                        Effect="{StaticResource Effect.ShadowMd}" Padding="22">
+                    <StackPanel>
+                        <TextBlock Text="СЕТЬ АУДИТОРИИ" Style="{StaticResource Txt.Label}" />
+                        <TextBlock Margin="0,14,0,0" Text="Преподаватель" Style="{StaticResource Txt.Dim}" />
+                        <TextBox Margin="0,6,0,0" Style="{StaticResource Widget.Input}"
+                                 Text="{Binding TeacherName, UpdateSourceTrigger=PropertyChanged}" />
+                        <TextBlock Margin="0,12,0,0" Text="Имя Wi-Fi" Style="{StaticResource Txt.Dim}" />
+                        <TextBox Margin="0,6,0,0" Style="{StaticResource Widget.Input}"
+                                 Text="{Binding WifiSsid, UpdateSourceTrigger=PropertyChanged}" />
+                        <TextBlock Margin="0,12,0,0" Text="Пароль Wi-Fi" Style="{StaticResource Txt.Dim}" />
+                        <TextBox Margin="0,6,0,0" Style="{StaticResource Widget.Input}"
+                                 Text="{Binding WifiPassword, UpdateSourceTrigger=PropertyChanged}" />
+                        <TextBlock Margin="0,12,0,0" Text="Порт" Style="{StaticResource Txt.Dim}" />
+                        <TextBox Margin="0,6,0,0" Style="{StaticResource Widget.Input}"
+                                 Text="{Binding PortText, UpdateSourceTrigger=PropertyChanged}" />
+                        <TextBlock Margin="0,16,0,0" Text="Новый ПИН, 4 цифры" Style="{StaticResource Txt.Dim}" />
+                        <TextBox Margin="0,6,0,0" Style="{StaticResource Widget.Input}" MaxLength="4"
+                                 Text="{Binding PinText, UpdateSourceTrigger=PropertyChanged}" />
+                        <StackPanel Orientation="Horizontal" Margin="0,14,0,0">
+                            <Button Content="Сменить ПИН" Command="{Binding ChangePinCommand}" Style="{StaticResource Btn.Soft}" Padding="14,0" />
+                            <Button Content="Копия журнала" Command="{Binding BackupCommand}" Style="{StaticResource Btn.Ghost}" Margin="10,0,0,0" Padding="14,0" />
+                        </StackPanel>
+                        <TextBlock Margin="0,10,0,0" Text="{Binding LastBackupText}" TextWrapping="Wrap" Style="{StaticResource Txt.Dim}" />
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <Grid Margin="0,16,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="12" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="12" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Border Grid.Column="0" Style="{StaticResource Card.Stat}">
+                    <StackPanel>
+                        <TextBlock Text="КАМЕРА" Style="{StaticResource Txt.Label}" />
+                        <TextBlock Margin="0,8,0,0" TextWrapping="Wrap" Style="{StaticResource Txt.Body}"
+                                   Text="Основной способ. Телефон преподавателя сканирует QR студента. Сеть для отметки не нужна." />
+                    </StackPanel>
+                </Border>
+                <Border Grid.Column="2" Style="{StaticResource Card.Stat}">
+                    <StackPanel>
+                        <TextBlock Text="ВРУЧНУЮ" Style="{StaticResource Txt.Label}" />
+                        <TextBlock Margin="0,8,0,0" TextWrapping="Wrap" Style="{StaticResource Txt.Body}"
+                                   Text="Клик по строке на вкладке «Занятия», если у студента сел телефон." />
+                    </StackPanel>
+                </Border>
+                <Border Grid.Column="4" Style="{StaticResource Card.Stat}">
+                    <StackPanel>
+                        <TextBlock Text="ПРОВЕРКА" Style="{StaticResource Txt.Label}" />
+                        <TextBlock Margin="0,8,0,0" TextWrapping="Wrap" Style="{StaticResource Txt.Body}"
+                                   Text="Перед записью занятия можно вызвать случайных из уже отмеченных." />
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <Border Margin="0,16,0,8" CornerRadius="20"
+                    Background="{DynamicResource Brush.Panel}"
+                    BorderBrush="{DynamicResource Brush.Border}" BorderThickness="1"
+                    Effect="{StaticResource Effect.ShadowMd}" Padding="22">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="16" />
+                        <ColumnDefinition Width="120" />
+                        <ColumnDefinition Width="12" />
+                        <ColumnDefinition Width="120" />
+                        <ColumnDefinition Width="12" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                        <TextBlock Text="ВНЕЗАПНАЯ ПЕРЕКЛИЧКА" Style="{StaticResource Txt.Label}" />
+                        <TextBlock Margin="0,8,0,0" Text="{Binding SuddenStatus}" TextWrapping="Wrap" Style="{StaticResource Txt.Dim}" />
+                    </StackPanel>
+                    <TextBox Grid.Column="2" Style="{StaticResource Widget.Input}"
+                             Text="{Binding SuddenFromText, UpdateSourceTrigger=PropertyChanged}" />
+                    <TextBox Grid.Column="4" Style="{StaticResource Widget.Input}"
+                             Text="{Binding SuddenToText, UpdateSourceTrigger=PropertyChanged}" />
+                    <Button Grid.Column="6" Content="Включить" Command="{Binding ArmCommand}"
+                            Style="{StaticResource Btn.Primary}" Padding="16,0" />
+                </Grid>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>
