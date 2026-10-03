@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0A0D1A">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="КубГАУ">
+  <title>КубГАУ</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="logo.png">
+  <link rel="apple-touch-icon" href="logo.png">
+  <link rel="stylesheet" href="app.css">
+</head>
+<body>
+  <main id="student">
+    <img class="logo" src="logo.png" alt="КубГАУ">
+    <section id="loginCard" class="card">
+      <input id="loginInput" autocomplete="username" placeholder="Логин" enterkeyhint="next">
+      <input id="passwordInput" type="password" autocomplete="current-password" placeholder="Пароль" enterkeyhint="done">
+      <p id="loginError" class="error" hidden></p>
+      <button id="loginButton" type="button">Войти</button>
+    </section>
+    <section id="qrBlock" hidden>
+      <div class="qr-card"><img id="qrImage" alt="QR"></div>
+      <p id="studentStatus">Покажите код камере преподавателя</p>
+      <p class="hint">Код обновляется сам. Скриншот не сработает.</p>
+    </section>
+    <button id="logoutButton" class="link" type="button" hidden>Выйти</button>
+  </main>
+
+  <main id="teacher" hidden>
+    <section id="teacherHome">
+      <img class="logo big" id="teacherLogo" src="logo.png" alt="КубГАУ">
+      <h1>КубГАУ Преподаватель</h1>
+      <p id="teacherGroup" class="dim" hidden></p>
+      <p id="teacherCount" hidden></p>
+      <pre id="teacherList" hidden></pre>
+      <button id="teacherPrimary" class="primary" type="button">Сканировать сессию с ПК</button>
+      <button id="teacherSecondary" class="soft" type="button" hidden>Новая сессия</button>
+      <button id="teacherTransfer" class="primary" type="button" hidden>Передать на ПК</button>
+      <p id="teacherStatus" class="status">Наведите камеру на код сессии на экране ПК. Сеть не нужна.</p>
+    </section>
+    <section id="teacherCamera" hidden>
+      <video id="camera" playsinline autoplay muted></video>
+      <div class="frame"></div>
+      <p id="flashName" hidden></p>
+      <div class="sheet">
+        <p id="cameraStatus">Держите камеру на коде</p>
+        <button id="cameraCancel" class="soft" type="button">Отмена</button>
+      </div>
+    </section>
+    <section id="teacherResult" hidden>
+      <img class="logo small" src="logo.png" alt="КубГАУ">
+      <div class="qr-card"><img id="resultQr" alt="Итог"></div>
+      <p id="resultLabel">Покажите этот код камере ПК</p>
+      <button id="saveResult" class="soft" type="button">Сохранить файл</button>
+      <button id="resultBack" class="primary" type="button">Назад к списку</button>
+    </section>
+  </main>
+
+  <button id="modeSwitch" class="mode" type="button">Режим преподавателя</button>
+  <p id="httpsWarn" class="warn" hidden>Откройте страницу по HTTPS и добавьте на экран «Домой» — иначе iPhone не включит камеру.</p>
+
+  <script src="pako.min.js"></script>
+  <script src="qrcode.js"></script>
+  <script src="jsQR.js"></script>
+  <script src="protocol.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,19 @@
+{
+  "name": "КубГАУ",
+  "short_name": "КубГАУ",
+  "description": "Учёт посещаемости КубГАУ. Студент показывает QR, преподаватель сканирует камерой. Без сети.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0A0D1A",
+  "theme_color": "#0A0D1A",
+  "icons": [
+    {
+      "src": "logo.png",
+      "sizes": "720x720",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

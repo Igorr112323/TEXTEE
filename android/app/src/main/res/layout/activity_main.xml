@@ -1,0 +1,251 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FFFFFF">
+
+    <LinearLayout
+        android:id="@+id/homeLayer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:paddingStart="24dp"
+        android:paddingEnd="24dp"
+        android:paddingTop="20dp">
+
+        <ImageView
+            android:id="@+id/logo"
+            android:layout_width="match_parent"
+            android:layout_height="240dp"
+            android:contentDescription="КубГАУ"
+            android:scaleType="fitCenter"
+            android:src="@drawable/logo" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-medium"
+            android:gravity="center"
+            android:text="КубГАУ Преподаватель"
+            android:textColor="@color/text"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/groupLine"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:gravity="center"
+            android:textColor="@color/textDim"
+            android:textSize="13sp"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/countLine"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:fontFamily="sans-serif-medium"
+            android:gravity="center"
+            android:textColor="@color/text"
+            android:textSize="22sp"
+            android:visibility="gone" />
+
+        <ScrollView
+            android:id="@+id/listScroll"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginTop="12dp"
+            android:layout_weight="1"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/listText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:lineSpacingExtra="6dp"
+                android:textColor="@color/text"
+                android:textSize="15sp" />
+        </ScrollView>
+
+        <View
+            android:id="@+id/spacer"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <Button
+            android:id="@+id/primaryButton"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:background="@drawable/button_primary"
+            android:stateListAnimator="@null"
+            android:text="Сканировать сессию с ПК"
+            android:textAllCaps="false"
+            android:textColor="#FFFFFF"
+            android:textSize="15sp" />
+
+        <Button
+            android:id="@+id/secondaryButton"
+            android:layout_width="match_parent"
+            android:layout_height="44dp"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/button_soft"
+            android:stateListAnimator="@null"
+            android:text="Новая сессия"
+            android:textAllCaps="false"
+            android:textColor="@color/accent"
+            android:textSize="14sp"
+            android:visibility="gone" />
+
+        <Button
+            android:id="@+id/tertiaryButton"
+            android:layout_width="match_parent"
+            android:layout_height="44dp"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/button_primary"
+            android:stateListAnimator="@null"
+            android:text="Передать на ПК"
+            android:textAllCaps="false"
+            android:textColor="#FFFFFF"
+            android:textSize="14sp"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/statusText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="28dp"
+            android:fontFamily="sans-serif-medium"
+            android:gravity="center"
+            android:textColor="#8A8A8A"
+            android:textSize="13sp" />
+    </LinearLayout>
+
+    <FrameLayout
+        android:id="@+id/cameraLayer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone">
+
+        <TextureView
+            android:id="@+id/textureView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <View
+            android:layout_width="260dp"
+            android:layout_height="260dp"
+            android:layout_gravity="center"
+            android:background="@drawable/scan_frame" />
+
+        <TextView
+            android:id="@+id/flashName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginBottom="180dp"
+            android:fontFamily="sans-serif-medium"
+            android:gravity="center"
+            android:padding="12dp"
+            android:textColor="#2E7D32"
+            android:textSize="28sp"
+            android:visibility="gone" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:background="@drawable/sheet_bg"
+            android:orientation="vertical"
+            android:paddingStart="20dp"
+            android:paddingTop="18dp"
+            android:paddingEnd="20dp"
+            android:paddingBottom="24dp">
+
+            <TextView
+                android:id="@+id/cameraStatus"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif-medium"
+                android:gravity="center"
+                android:textColor="#8A8A8A"
+                android:textSize="14sp" />
+
+            <Button
+                android:id="@+id/cameraCancel"
+                android:layout_width="match_parent"
+                android:layout_height="44dp"
+                android:layout_marginTop="14dp"
+                android:background="@drawable/button_soft"
+                android:stateListAnimator="@null"
+                android:text="Отмена"
+                android:textAllCaps="false"
+                android:textColor="@color/textDim"
+                android:textSize="14sp" />
+        </LinearLayout>
+    </FrameLayout>
+
+    <LinearLayout
+        android:id="@+id/transferLayer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#FFFFFF"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:padding="24dp"
+        android:visibility="gone">
+
+        <ImageView
+            android:layout_width="72dp"
+            android:layout_height="72dp"
+            android:layout_marginTop="12dp"
+            android:contentDescription="КубГАУ"
+            android:src="@drawable/logo" />
+
+        <ImageView
+            android:id="@+id/transferQr"
+            android:layout_width="300dp"
+            android:layout_height="300dp"
+            android:layout_marginTop="18dp"
+            android:contentDescription="Итог"
+            android:scaleType="fitCenter" />
+
+        <TextView
+            android:id="@+id/transferLabel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:fontFamily="sans-serif-medium"
+            android:gravity="center"
+            android:text="Покажите этот код камере ПК"
+            android:textColor="@color/text"
+            android:textSize="15sp" />
+
+        <Button
+            android:id="@+id/saveButton"
+            android:layout_width="match_parent"
+            android:layout_height="44dp"
+            android:layout_marginTop="18dp"
+            android:background="@drawable/button_soft"
+            android:stateListAnimator="@null"
+            android:text="Сохранить файл"
+            android:textAllCaps="false"
+            android:textColor="@color/accent"
+            android:textSize="14sp" />
+
+        <Button
+            android:id="@+id/transferBack"
+            android:layout_width="match_parent"
+            android:layout_height="44dp"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/button_primary"
+            android:stateListAnimator="@null"
+            android:text="Назад к списку"
+            android:textAllCaps="false"
+            android:textColor="#FFFFFF"
+            android:textSize="14sp" />
+    </LinearLayout>
+</FrameLayout>

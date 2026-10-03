@@ -1,0 +1,153 @@
+@font-face { font-family: Manrope; src: url("fonts/Manrope-Regular.ttf") format("truetype"); font-weight: 400; font-display: swap; }
+@font-face { font-family: Manrope; src: url("fonts/Manrope-Medium.ttf") format("truetype"); font-weight: 500; font-display: swap; }
+@font-face { font-family: Manrope; src: url("fonts/Manrope-SemiBold.ttf") format("truetype"); font-weight: 600; font-display: swap; }
+@font-face { font-family: Manrope; src: url("fonts/Manrope-Bold.ttf") format("truetype"); font-weight: 700; font-display: swap; }
+@font-face { font-family: Manrope; src: url("fonts/Manrope-ExtraBold.ttf") format("truetype"); font-weight: 800; font-display: swap; }
+
+* { box-sizing: border-box; }
+html, body { margin: 0; min-height: 100%; }
+body {
+  font-family: Manrope, sans-serif;
+  background: #0A0D1A;
+  color: #F0F2FA;
+  min-height: 100dvh;
+}
+body.teacher {
+  background: #FFFFFF;
+  color: #1A1F36;
+}
+button, input { font-family: inherit; }
+main { min-height: 100dvh; display: flex; flex-direction: column; align-items: center; padding: 40px 24px 88px; }
+.logo { width: 110px; height: 110px; object-fit: contain; }
+.logo.big { width: min(280px, 70vw); height: 220px; margin-top: 12px; }
+.logo.small { width: 72px; height: 72px; margin-top: 8px; }
+.card {
+  margin: auto;
+  width: min(320px, 100%);
+  background: #141827;
+  border: 1px solid #2A3150;
+  border-radius: 20px;
+  padding: 26px 24px 24px;
+}
+input {
+  width: 100%;
+  background: #1C2136;
+  border: 1px solid #2A3150;
+  border-radius: 12px;
+  color: #F0F2FA;
+  padding: 14px;
+  font-size: 15px;
+  outline: none;
+}
+input + input { margin-top: 10px; }
+input:focus { border-color: #6366F1; }
+.card button, .primary, .soft {
+  width: 100%;
+  border: 0;
+  border-radius: 12px;
+  min-height: 44px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.card button, .primary { background: #6366F1; color: white; margin-top: 16px; }
+.card button:active, .primary:active { background: #4F46E5; }
+.soft { background: #EEF1F8; color: #6366F1; margin-top: 10px; }
+.error { color: #EF4444; text-align: center; font-size: 13px; margin: 10px 0 0; }
+#qrBlock, #teacherResult { margin: auto; display: flex; flex-direction: column; align-items: center; }
+.qr-card {
+  width: min(300px, 86vw);
+  height: min(300px, 86vw);
+  background: white;
+  border-radius: 20px;
+  padding: 16px;
+  display: flex;
+}
+.qr-card img { width: 100%; height: 100%; object-fit: contain; }
+#studentStatus, .hint, .dim, .status { text-align: center; color: #9099B8; }
+#studentStatus { font-size: 15px; margin: 18px 0 0; max-width: 280px; }
+.hint { font-size: 12px; margin: 8px 0 0; max-width: 280px; }
+.link, .mode {
+  background: none;
+  border: 0;
+  color: #9099B8;
+  font-size: 13px;
+  cursor: pointer;
+}
+#logoutButton { margin-top: auto; }
+#teacher { width: 100%; }
+#teacherHome { width: min(420px, 100%); display: flex; flex-direction: column; align-items: center; }
+h1 { font-size: 16px; font-weight: 500; margin: 8px 0 0; }
+#teacherCount { font-size: 22px; font-weight: 700; margin: 8px 0 0; }
+#teacherList {
+  width: 100%;
+  margin: 16px 0;
+  font-family: Manrope, sans-serif;
+  font-size: 15px;
+  line-height: 1.7;
+  white-space: pre-wrap;
+  max-height: 34dvh;
+  overflow: auto;
+}
+#teacherStatus { font-size: 13px; font-weight: 500; margin: 16px 0 28px; }
+#teacherCamera {
+  position: fixed;
+  inset: 0;
+  background: #000;
+  z-index: 5;
+}
+#camera { width: 100%; height: 100%; object-fit: cover; }
+.frame {
+  position: absolute;
+  width: 260px;
+  height: 260px;
+  left: 50%;
+  top: 42%;
+  transform: translate(-50%, -50%);
+  border: 3px solid #6366F1;
+  border-radius: 24px;
+  pointer-events: none;
+}
+#flashName {
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  top: 18%;
+  text-align: center;
+  font-size: 28px;
+  font-weight: 700;
+  color: #2E7D32;
+}
+.sheet {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: #F7FFFFFF;
+  color: #1A1F36;
+  border-radius: 20px 20px 0 0;
+  padding: 18px 20px 28px;
+}
+#cameraStatus { text-align: center; font-size: 14px; font-weight: 500; margin: 0; color: #8A8A8A; }
+.mode {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 18px;
+  z-index: 4;
+}
+.warn {
+  position: fixed;
+  left: 16px;
+  right: 16px;
+  bottom: 52px;
+  background: #FDECEC;
+  color: #B34A4A;
+  border-radius: 12px;
+  padding: 10px 12px;
+  font-size: 12px;
+  text-align: center;
+  z-index: 6;
+}
+.ok { color: #2E7D32 !important; }
+.bad { color: #B34A4A !important; }
