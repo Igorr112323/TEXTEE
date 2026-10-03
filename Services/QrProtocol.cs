@@ -1,3 +1,4 @@
+using System.IO;
 using System.IO.Compression;
 using System.Security.Cryptography;
 using System.Text;
@@ -224,7 +225,7 @@ public static class QrProtocol
     public static string Decompress(byte[] data)
     {
         using var input = new MemoryStream(data);
-        using var zlib = new ZLibStream(input, CompressionMode.Decompress);
+        using var zlib = new ZLibStream(input, CompressionMode.Decompress, leaveOpen: false);
         using var output = new MemoryStream();
         zlib.CopyTo(output);
         return Encoding.UTF8.GetString(output.ToArray());
